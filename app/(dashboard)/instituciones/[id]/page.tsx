@@ -208,6 +208,19 @@ export default async function InstitucionDetailPage({
             Agregar alumno nuevo o cambiar de sección
           </p>
         </Link>
+        <Link
+          href={`/instituciones/${id}/notas`}
+          className="group bg-white border border-gray-200 rounded-2xl p-5
+                     hover:border-brand/40 hover:shadow-md transition-all"
+        >
+          <p className="text-2xl mb-2">📊</p>
+          <p className="font-semibold text-gray-900 group-hover:text-brand transition-colors">
+            Ver notas
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Supervisar promedios por bimestre y curso
+          </p>
+        </Link>
       </div>
 
       {teachers === 0 && (
