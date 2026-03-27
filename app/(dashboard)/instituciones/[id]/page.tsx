@@ -138,7 +138,7 @@ export default async function InstitucionDetailPage({
       </div>
 
       {/* Acciones rápidas */}
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
         <Link
           href={`/instituciones/${id}/personas`}
           className="group bg-white border border-gray-200 rounded-2xl p-5
@@ -189,6 +189,23 @@ export default async function InstitucionDetailPage({
           </p>
           <p className="text-xs text-gray-400 mt-0.5">
             Re-descargar credenciales de importaciones anteriores
+          </p>
+        </Link>
+      </div>
+
+      {/* Segunda fila de acciones */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Link
+          href={`/instituciones/${id}/alumno`}
+          className="group bg-white border border-gray-200 rounded-2xl p-5
+                     hover:border-brand/40 hover:shadow-md transition-all"
+        >
+          <p className="text-2xl mb-2">🎒</p>
+          <p className="font-semibold text-gray-900 group-hover:text-brand transition-colors">
+            Gestionar alumno
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Agregar alumno nuevo o cambiar de sección
           </p>
         </Link>
       </div>
