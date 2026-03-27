@@ -5,11 +5,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 const NAV = [
-  { href: '/',                    label: 'Instituciones', icon: '🏫' },
+  { href: '/',                    label: 'Instituciones',    icon: '🏫' },
   { href: '/instituciones/nueva', label: 'Nueva institución', icon: '➕' },
+  { href: '/soporte',             label: 'Soporte',           icon: '📩' },
 ];
 
-export default function Sidebar({ userEmail }: { userEmail: string }) {
+export default function Sidebar({ userEmail, pendingSupport = 0 }: { userEmail: string; pendingSupport?: number }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -53,7 +54,12 @@ export default function Sidebar({ userEmail }: { userEmail: string }) {
                 }`}
             >
               <span className="text-base">{item.icon}</span>
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.href === '/soporte' && pendingSupport > 0 && (
+                <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                  {pendingSupport}
+                </span>
+              )}
             </Link>
           );
         })}
