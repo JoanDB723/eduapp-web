@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/admin';
+import EliminarInstitucion from './EliminarInstitucion';
 
 async function getData(id: string) {
   const supabase = createAdminClient();
@@ -201,6 +202,11 @@ export default async function InstitucionDetailPage({
           </p>
         </div>
       )}
+
+      {/* Zona peligrosa */}
+      <div className="mt-8 border-t border-gray-100 pt-6 flex justify-end">
+        <EliminarInstitucion institutionId={id} institutionName={institution.name} />
+      </div>
     </div>
   );
 }
