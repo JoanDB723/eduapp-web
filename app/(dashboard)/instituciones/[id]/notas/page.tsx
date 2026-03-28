@@ -6,8 +6,15 @@ import NotasClient from './NotasClient';
 async function getData(institutionId: string) {
   const supabase = createAdminClient();
 
-  const [{ data: institution }, { data: grades }, { data: periods }] = await Promise.all([
-    supabase.from('institutions').select('id, name, current_academic_year').eq('id', institutionId).single(),
+  const { data: institution } = await supabase
+    .from('institutions')
+    .select('id, name, current_academic_year')
+    .eq('id', institutionId)
+    .single();
+
+  if (!institution) return null;
+
+  const [{ data: grades }, { data: periods }] = await Promise.all([
     supabase
       .from('grades')
       .select('id, name, order_num, sections(id, name)')
@@ -17,10 +24,9 @@ async function getData(institutionId: string) {
       .from('academic_periods')
       .select('id, name, order_num')
       .eq('institution_id', institutionId)
+      .eq('academic_year', institution.current_academic_year)
       .order('order_num'),
   ]);
-
-  if (!institution) return null;
   return {
     institution,
     grades: (grades ?? []) as { id: string; name: string; sections: { id: string; name: string }[] }[],

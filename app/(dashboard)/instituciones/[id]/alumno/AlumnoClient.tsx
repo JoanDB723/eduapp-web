@@ -165,6 +165,7 @@ function CambiarSeccionForm({ institutionId, grades }: { institutionId: string; 
   const [sectionId,  setSectionId]  = useState('');
   const [error,      setError]      = useState('');
   const [done,       setDone]       = useState(false);
+  const [confirm,    setConfirm]    = useState(false);
   const [isPending,  startTransition] = useTransition();
 
   const selectedGrade = grades.find((g) => g.id === gradeId);
@@ -180,8 +181,13 @@ function CambiarSeccionForm({ institutionId, grades }: { institutionId: string; 
   const handleMover = () => {
     setError('');
     if (!selected || !sectionId) { setError('Selecciona un alumno y una sección.'); return; }
+    setConfirm(true);
+  };
+
+  const handleConfirm = () => {
+    setConfirm(false);
     startTransition(async () => {
-      const result = await cambiarSeccionAlumno({ institutionId, studentId: selected.id, newSectionId: sectionId });
+      const result = await cambiarSeccionAlumno({ institutionId, studentId: selected!.id, newSectionId: sectionId });
       if (result.error) { setError(result.error); return; }
       setDone(true);
     });
@@ -201,7 +207,51 @@ function CambiarSeccionForm({ institutionId, grades }: { institutionId: string; 
     </div>
   );
 
+  const newSection = grades.find(g => g.id === gradeId)?.sections.find(s => s.id === sectionId);
+
   return (
+    <>
+    {/* Modal de confirmación */}
+    {confirm && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl space-y-4">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">⚠️</span>
+            <div>
+              <p className="font-bold text-gray-900">Cambiar sección</p>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Esta acción afecta las notas del alumno
+              </p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-700">
+            <strong>{selected?.full_name}</strong> pasará a{' '}
+            <strong>{newSection ? `Sección ${newSection.name}` : 'la nueva sección'}</strong>.
+          </p>
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1">
+            <p className="text-xs font-semibold text-amber-800">¿Qué pasa con sus notas?</p>
+            <p className="text-xs text-amber-700">
+              Sus notas individuales quedan guardadas en el historial del salón anterior. El nuevo profesor deberá ingresar manualmente sus notas bimestrales anteriores desde la app en <strong>Notas → Ver notas bimestrales</strong>.
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setConfirm(false)}
+              className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={isPending}
+              className="flex-1 py-2.5 rounded-xl bg-brand text-white text-sm font-semibold hover:bg-brand-medium transition-colors disabled:opacity-50"
+            >
+              {isPending ? 'Actualizando...' : 'Confirmar cambio'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     <div className="space-y-4">
       {/* Buscar alumno */}
       <div>
@@ -302,5 +352,6 @@ function CambiarSeccionForm({ institutionId, grades }: { institutionId: string; 
         </>
       )}
     </div>
+    </>
   );
 }

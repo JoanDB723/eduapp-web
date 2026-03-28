@@ -45,11 +45,19 @@ export async function getGradeTable(
 ): Promise<{ rows: GradeRow[]; categories: CategoryCol[] }> {
   const supabase = createAdminClient();
 
-  // All periods for this institution ordered
+  // Current academic year for the institution
+  const { data: inst } = await supabase
+    .from('institutions')
+    .select('current_academic_year')
+    .eq('id', institutionId)
+    .single();
+
+  // All periods for this institution (current year only)
   const { data: allPeriods } = await supabase
     .from('academic_periods')
     .select('id, name, order_num')
     .eq('institution_id', institutionId)
+    .eq('academic_year', inst?.current_academic_year ?? '')
     .order('order_num');
 
   const periods = allPeriods ?? [];
@@ -122,8 +130,21 @@ export async function getGradeTable(
       scoreMap.get(s.evaluation_id)!.set(s.student_id, s.score);
     });
 
+    // Manual bimestral overrides for this period
+    const { data: manuals } = await supabase
+      .from('student_bimestral_grades')
+      .select('student_id, manual_grade')
+      .eq('teacher_section_id', tsId)
+      .eq('academic_period_id', period.id);
+    const manualMap = new Map((manuals ?? []).map((m: any) => [m.student_id, m.manual_grade as number | null]));
+
     const studentGrades = new Map<string, number | null>();
     for (const st of students) {
+      const manual = manualMap.get(st.id);
+      if (manual != null) {
+        studentGrades.set(st.id, manual);
+        continue;
+      }
       const catResults = periodCats.map((cat: any) => {
         const catEvals = (evals ?? []).filter((e: any) => e.category_id === cat.id);
         if (catEvals.length === 0) return { weight: cat.weight, avg: 0 };
